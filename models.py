@@ -53,7 +53,7 @@ def create_model(fingerprint_input, model_settings, model_architecture, is_train
   if model_architecture == 'conv':
     return create_conv_model(fingerprint_input, model_settings, is_training)
   elif model_architecture == 'low_latency_conv':
-    return create_low_latency_conv_model(fingerprint_input, model_settings, is_training)
+    return create_light_conv_model(fingerprint_input, model_settings, is_training)
   else:
     raise Exception('model_architecture argument not recognized, should be one of "conv", "low_latency_conv"')
 
@@ -119,7 +119,7 @@ def create_conv_model(fingerprint_input, model_settings, is_training):
     return final_fc
 
 
-def create_low_latency_conv_model(fingerprint_input, model_settings, is_training):
+def create_light_conv_model(fingerprint_input, model_settings, is_training):
   if is_training:
     dropout_prob = tf.placeholder(tf.float32, name='dropout_prob')
 
@@ -144,8 +144,8 @@ def create_low_latency_conv_model(fingerprint_input, model_settings, is_training
     first_dropout = first_relu
 
 
-  first_conv_output_width = math.floor((input_frequency_size - first_filter_width + first_filter_stride_x) first_filter_stride_x)
-  first_conv_output_height = math.floor((input_time_size - first_filter_height + first_filter_stride_y) first_filter_stride_y)
+  first_conv_output_width = math.floor((input_frequency_size - first_filter_width + first_filter_stride_x) / first_filter_stride_x)
+  first_conv_output_height = math.floor((input_time_size - first_filter_height + first_filter_stride_y) / first_filter_stride_y)
   first_conv_element_count = int(first_conv_output_width * first_conv_output_height * first_filter_count)
   flattened_first_conv = tf.reshape(first_dropout,[-1, first_conv_element_count])
   first_fc_output_channels = 128
